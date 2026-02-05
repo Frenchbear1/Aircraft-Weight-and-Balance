@@ -1,0 +1,1320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Weight - Balance</title>
+  <style>
+    :root {
+      --bg: #efefef;
+      --panel: #f7f7f7;
+      --ink: #1f1f1f;
+      --muted: #5b5b5b;
+      --accent: #5f5f5f;
+      --accent-2: #3f3f3f;
+      --grid: #c9c9c9;
+      --line: #3b3b3b;
+      --shadow: rgba(0,0,0,0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Merriweather", "Georgia", serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #f2f2f2, #e9e9e9);
+    }
+
+    header {
+      padding: 12px 16px 6px;
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      border-bottom: 1px solid #d4d4d4;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 0.5px;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(360px, 1.25fr) minmax(320px, 0.9fr);
+      gap: 10px;
+      padding: 10px 12px 16px;
+      width: min(1200px, 96vw);
+      margin: 0 auto;
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 10px 12px;
+      box-shadow: 0 10px 30px var(--shadow);
+      border: 1px solid #d8d8d8;
+    }
+
+    .panel h2 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    input, select, button {
+      font: inherit;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #cfcfcf;
+      background: #fbfbfb;
+      color: var(--ink);
+    }
+
+    input[type="number"] {
+      max-width: 110px;
+    }
+
+    td input[type="number"] {
+      max-width: 90px;
+    }
+
+    button {
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #bdbdbd;
+      background: #e4e4e4;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: #4a4a4a;
+    }
+
+    button.ghost {
+      background: transparent;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      padding: 4px 5px;
+      border-bottom: 1px solid #e0e0e0;
+      text-align: left;
+    }
+
+    th { color: var(--muted); font-weight: 600; }
+
+    .muted { color: var(--muted); font-size: 12px; }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      margin-top: 6px;
+      min-width: 240px;
+    }
+
+    .summary .col {
+      display: grid;
+      gap: 6px;
+    }
+
+    .summary .card {
+      background: #f0f0f0;
+      border: 1px solid #d9d9d9;
+      border-radius: 12px;
+      padding: 6px 8px;
+    }
+
+    .summary .value {
+      font-size: 16px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .plot-controls {
+      display: none;
+    }
+
+    .plot-controls.show {
+      display: flex;
+    }
+
+    .graph-editor {
+      display: none;
+    }
+
+    .graph-editor.show {
+      display: block;
+    }
+
+    .graph-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .stations-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .stations-layout .summary {
+      align-self: center;
+    }
+    .graph-wrap {
+      display: block;
+      overflow: hidden;
+    }
+
+    canvas {
+      height: 520px;
+      background: #fdfdfd;
+      border-radius: 14px;
+      border: 1px solid #d8d8d8;
+    }
+
+    .plot-list {
+      display: grid;
+      gap: 6px;
+    }
+
+    .plot-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto 1fr auto;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .plot-index {
+      font-size: 11px;
+      color: #2b2b2b;
+      padding: 0 2px;
+      min-width: 12px;
+      text-align: right;
+    }
+
+    .arrow-stack {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .arrow-stack button {
+      padding: 2px 6px;
+      line-height: 1;
+    }
+
+    .drag-handle {
+      padding: 4px 6px;
+      border: 1px solid #c9c9c9;
+      border-radius: 6px;
+      background: #ededed;
+      cursor: grab;
+      font-size: 12px;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .plot-editor {
+      display: none;
+    }
+
+    .plot-editor.show {
+      display: grid;
+    }
+
+    .plot-item input {
+      padding: 5px 6px;
+    }
+
+    .plot-item button {
+      padding: 5px 6px;
+    }
+
+    .note {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .graph-layout {
+        grid-template-columns: minmax(420px, 1fr) minmax(180px, 0.7fr);
+        gap: 12px;
+      }
+
+      .stations-layout {
+        grid-template-columns: 1fr auto;
+        align-items: start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Weight &amp; Balance</h1>
+    <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+      <button id="exportData">Export</button>
+      <button id="importData">Import</button>
+      <input id="importFile" type="file" accept="application/json" style="display:none;" />
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <h2 style="margin:0;">Aircraft</h2>
+        <span style="font-size:11px; color:#5b5b5b;">Aircraft are saved locally in your browser storage.</span>
+      </div>
+      <div class="row">
+        <div style="grid-column: span 8;">
+          <label for="aircraftName">Aircraft Name (type new or pick saved)</label>
+          <input id="aircraftName" list="aircraftList" placeholder="C172 N123AB" />
+          <datalist id="aircraftList"></datalist>
+        </div>
+        <div style="grid-column: span 4; align-self: end; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+          <button class="primary" id="saveAircraft" style="width: 100%;">Save</button>
+          <button id="duplicateAircraft" style="width: 100%;">Duplicate</button>
+        </div>
+      </div>
+      <div class="button-row" style="margin-bottom: 6px;">
+        <button id="deleteAircraft">Delete</button>
+      </div>
+
+      <h2>Stations</h2>
+      <div class="stations-layout">
+        <div class="stations-main">
+          <div class="button-row" style="margin-bottom: 6px;">
+            <button id="addRow">Add Station</button>
+            <button id="resetRows" class="ghost">Reset Weights</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Weight</th>
+                <th>Arm</th>
+                <th>Moment</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="stationBody"></tbody>
+          </table>
+
+          <div class="row" style="margin-top: 8px;">
+            <div style="grid-column: span 6;">
+              <label for="taxiFuel">Taxi Fuel Burn (gal)</label>
+              <input id="taxiFuel" type="number" step="0.1" />
+            </div>
+            <div style="grid-column: span 6;">
+              <label for="tripFuel">Trip Fuel Burn (gal)</label>
+              <input id="tripFuel" type="number" step="0.1" />
+            </div>
+          </div>
+        </div>
+
+        <div class="summary">
+          <div class="col">
+            <div class="card">
+              <div class="muted">Takeoff Weight</div>
+              <div class="value" id="takeoffWeight">0</div>
+            </div>
+            <div class="card">
+              <div class="muted">Takeoff CG</div>
+              <div class="value" id="takeoffCg">0</div>
+            </div>
+            <div class="card">
+              <div class="muted">Takeoff Moment</div>
+              <div class="value" id="takeoffMoment">0</div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card">
+              <div class="muted">Landing Weight</div>
+              <div class="value" id="landingWeight">0</div>
+            </div>
+            <div class="card">
+              <div class="muted">Landing CG</div>
+              <div class="value" id="landingCg">0</div>
+            </div>
+            <div class="card">
+              <div class="muted">Landing Moment</div>
+              <div class="value" id="landingMoment">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>CG Envelope Graph</h2>
+      <div id="warningMessage" class="note" style="color:#b20000; font-weight:600; display:none; margin-bottom:6px;">
+        Warning: Takeoff and/or landing point is outside the envelope.
+      </div>
+      <div class="graph-layout">
+        <div class="graph-wrap" id="graphWrap">
+          <canvas id="cgCanvas" width="900" height="520"></canvas>
+        </div>
+        <div class="grid">
+          <div class="button-row">
+            <button id="toggleEdit">Edit Points</button>
+          </div>
+          <div class="plot-list plot-editor" id="plotEditor"></div>
+          <div class="button-row plot-controls" id="plotControls">
+            <button id="addPoint">Add Plot Point</button>
+          </div>
+          <div class="button-row">
+            <button id="toggleGraphEdit">Edit Graph</button>
+          </div>
+          <div class="graph-editor" id="graphEditor">
+            <div class="row">
+              <div style="grid-column: span 6;">
+                <label for="cgMin">CG Min (x)</label>
+                <input id="cgMin" type="number" step="0.1" />
+              </div>
+              <div style="grid-column: span 6;">
+                <label for="cgMax">CG Max (x)</label>
+                <input id="cgMax" type="number" step="0.1" />
+              </div>
+              <div style="grid-column: span 6;">
+                <label for="wtMin">Weight Min (y)</label>
+                <input id="wtMin" type="number" step="0.1" />
+              </div>
+              <div style="grid-column: span 6;">
+                <label for="wtMax">Weight Max (y)</label>
+                <input id="wtMax" type="number" step="0.1" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="note">Edit to drag/reorder envelope points. When hidden, only the border line shows.</p>
+    </div>
+  </div>
+
+  <script>
+    const stationBody = document.getElementById('stationBody');
+    const addRowBtn = document.getElementById('addRow');
+    const resetRowsBtn = document.getElementById('resetRows');
+    const taxiFuelInput = document.getElementById('taxiFuel');
+    const tripFuelInput = document.getElementById('tripFuel');
+
+    const takeoffWeightEl = document.getElementById('takeoffWeight');
+    const takeoffCgEl = document.getElementById('takeoffCg');
+    const takeoffMomentEl = document.getElementById('takeoffMoment');
+    const landingWeightEl = document.getElementById('landingWeight');
+    const landingCgEl = document.getElementById('landingCg');
+    const landingMomentEl = document.getElementById('landingMoment');
+    const exportDataBtn = document.getElementById('exportData');
+    const importDataBtn = document.getElementById('importData');
+    const importFileInput = document.getElementById('importFile');
+
+    const aircraftName = document.getElementById('aircraftName');
+    const saveAircraftBtn = document.getElementById('saveAircraft');
+    const duplicateAircraftBtn = document.getElementById('duplicateAircraft');
+    const deleteAircraftBtn = document.getElementById('deleteAircraft');
+    const aircraftList = document.getElementById('aircraftList');
+
+    const cgMin = document.getElementById('cgMin');
+    const cgMax = document.getElementById('cgMax');
+    const wtMin = document.getElementById('wtMin');
+    const wtMax = document.getElementById('wtMax');
+    const canvas = document.getElementById('cgCanvas');
+    const graphWrap = document.getElementById('graphWrap');
+    const ctx = canvas.getContext('2d');
+    const addPointBtn = document.getElementById('addPoint');
+    const toggleEditBtn = document.getElementById('toggleEdit');
+    const toggleGraphEditBtn = document.getElementById('toggleGraphEdit');
+    const plotEditor = document.getElementById('plotEditor');
+    const plotControls = document.getElementById('plotControls');
+    const graphEditor = document.getElementById('graphEditor');
+    const warningMessage = document.getElementById('warningMessage');
+
+    const DEFAULT_ROWS = [
+      { title: 'Empty Weight', weight: 0, arm: 0, locked: true },
+      { title: 'Oil', weight: 0, arm: 0 },
+      { title: 'Fuel / Gas', weight: 0, arm: 0 },
+      { title: 'Front Seats', weight: 0, arm: 0 },
+      { title: 'Rear Seats', weight: 0, arm: 0 },
+      { title: 'Baggage 1', weight: 0, arm: 0 },
+      { title: 'Baggage 2', weight: 0, arm: 0 }
+    ];
+
+    const STORAGE_KEY = 'wb_aircraft_profiles_v1';
+    const GRAPH_KEY = 'wb_graph_settings_v1';
+
+    function findAircraftByName(name) {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const idx = data.findIndex(item => (item.name || '').trim() === name);
+      return { data, idx, item: idx >= 0 ? data[idx] : null };
+    }
+
+    function updateAircraftActions() {
+      const name = aircraftName.value.trim();
+      const { idx } = findAircraftByName(name);
+      deleteAircraftBtn.style.display = idx >= 0 ? 'inline-block' : 'none';
+    }
+
+    function loadAircraftList() {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      aircraftList.innerHTML = '';
+      data.forEach((ac) => {
+        const opt = document.createElement('option');
+        opt.value = ac.name || '';
+        aircraftList.appendChild(opt);
+      });
+      updateAircraftActions();
+    }
+
+    function buildPayload() {
+      return {
+        name: aircraftName.value.trim(),
+        stations: getStationsData(),
+        taxiFuel: parseFloat(taxiFuelInput.value) || 0,
+        tripFuel: parseFloat(tripFuelInput.value) || 0
+      };
+    }
+
+    function payloadEquals(a, b) {
+      return JSON.stringify(a) === JSON.stringify(b);
+    }
+
+    function saveAircraft() {
+      const payload = buildPayload();
+      if (!payload.name) return;
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const idx = data.findIndex(item => (item.name || '').trim() === payload.name);
+      if (idx >= 0) {
+        if (payloadEquals(payload, data[idx])) return;
+        data[idx] = payload;
+      } else {
+        data.push(payload);
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      loadAircraftList();
+      updateAircraftActions();
+    }
+
+    function duplicateAircraft() {
+      const payload = buildPayload();
+      if (!payload.name) return;
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const exists = data.some(item => (item.name || '').trim() === payload.name);
+      if (exists) return;
+      data.push(payload);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      loadAircraftList();
+      updateAircraftActions();
+    }
+
+    function loadSelectedAircraft() {
+      const name = aircraftName.value.trim();
+      const { item: ac } = findAircraftByName(name);
+      if (!ac) return;
+      aircraftName.value = ac.name || '';
+      taxiFuelInput.value = ac.taxiFuel ?? '';
+      tripFuelInput.value = ac.tripFuel ?? '';
+      setStations(ac.stations || DEFAULT_ROWS);
+      showPointEditor = false;
+      showGraphEditor = false;
+      plotEditor.classList.remove('show');
+      plotControls.classList.remove('show');
+      toggleEditBtn.textContent = 'Edit Points';
+      graphEditor.classList.remove('show');
+      toggleGraphEditBtn.textContent = 'Edit Graph';
+      saveGraphSettings();
+      recalc();
+      updateAircraftActions();
+    }
+
+    function deleteSelectedAircraft() {
+      const name = aircraftName.value.trim();
+      const { data, idx } = findAircraftByName(name);
+      if (idx === -1) return;
+      data.splice(idx, 1);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      loadAircraftList();
+      updateAircraftActions();
+    }
+
+    function autoSaveIfPossible() {
+      const name = aircraftName.value.trim();
+      if (!name) return;
+      const { item } = findAircraftByName(name);
+      if (!item) return;
+      const payload = buildPayload();
+      if (payloadEquals(payload, item)) return;
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const idx = data.findIndex(entry => (entry.name || '').trim() === name);
+      if (idx === -1) return;
+      data[idx] = payload;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      loadAircraftList();
+      updateAircraftActions();
+    }
+
+    function formatNumber(value, digits = 2) {
+      return Number(value).toLocaleString('en-US', {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+      });
+    }
+
+    function createRow(row) {
+      const tr = document.createElement('tr');
+
+      const titleTd = document.createElement('td');
+      const titleInput = document.createElement('input');
+      titleInput.value = row.title || '';
+      if (row.locked) {
+        titleInput.disabled = true;
+      }
+      titleTd.appendChild(titleInput);
+
+      const weightTd = document.createElement('td');
+      const weightInput = document.createElement('input');
+      weightInput.type = 'number';
+      weightInput.step = '0.1';
+      weightInput.value = row.weight ?? '';
+      if (row.locked) {
+        weightInput.placeholder = 'Enter';
+      }
+      weightTd.appendChild(weightInput);
+
+      const armTd = document.createElement('td');
+      const armInput = document.createElement('input');
+      armInput.type = 'number';
+      armInput.step = '0.1';
+      armInput.value = row.arm ?? '';
+      if (row.locked) {
+        armInput.placeholder = 'Enter';
+      }
+      armTd.appendChild(armInput);
+
+      const momentTd = document.createElement('td');
+      momentTd.textContent = '0.00';
+
+      const removeTd = document.createElement('td');
+      const removeBtn = document.createElement('button');
+      removeBtn.setAttribute('aria-label', 'Remove station');
+      removeBtn.innerHTML = '&#128465;';
+      removeBtn.className = 'ghost';
+      if (row.locked) {
+        removeBtn.disabled = true;
+        removeBtn.style.opacity = '0.3';
+        removeBtn.style.cursor = 'not-allowed';
+      }
+      removeTd.appendChild(removeBtn);
+
+      tr.appendChild(titleTd);
+      tr.appendChild(weightTd);
+      tr.appendChild(armTd);
+      tr.appendChild(momentTd);
+      tr.appendChild(removeTd);
+
+      function update() {
+        const weight = parseFloat(weightInput.value) || 0;
+        const arm = parseFloat(armInput.value) || 0;
+        momentTd.textContent = formatNumber(weight * arm, 2);
+        recalc();
+      }
+
+      weightInput.addEventListener('input', update);
+      armInput.addEventListener('input', update);
+      titleInput.addEventListener('input', recalc);
+
+      removeBtn.addEventListener('click', () => {
+        if (row.locked) return;
+        tr.remove();
+        recalc();
+      });
+
+      update();
+      return tr;
+    }
+
+    function setStations(rows) {
+      stationBody.innerHTML = '';
+      rows.forEach(row => stationBody.appendChild(createRow(row)));
+    }
+
+    function getStationsData() {
+      const rows = [];
+      stationBody.querySelectorAll('tr').forEach(tr => {
+        const inputs = tr.querySelectorAll('input');
+        rows.push({
+          title: inputs[0].value,
+          weight: parseFloat(inputs[1].value) || 0,
+          arm: parseFloat(inputs[2].value) || 0,
+          locked: inputs[0].disabled
+        });
+      });
+      return rows;
+    }
+
+    function recalc() {
+      const baseWeight = 0;
+      const baseCg = 0;
+      const baseMoment = 0;
+      const stations = getStationsData();
+
+      let totalWeight = baseWeight;
+      let totalMoment = baseMoment;
+
+      stations.forEach(row => {
+        totalWeight += row.weight;
+        totalMoment += row.weight * row.arm;
+      });
+
+      const FUEL_LB_PER_GAL = 6.0;
+      const taxiFuelGal = parseFloat(taxiFuelInput.value) || 0;
+      const tripFuelGal = parseFloat(tripFuelInput.value) || 0;
+      const taxiBurnLb = taxiFuelGal * FUEL_LB_PER_GAL;
+      const totalBurnLb = (taxiFuelGal + tripFuelGal) * FUEL_LB_PER_GAL;
+
+      const fuelRow = stations.find(row => {
+        const title = row.title.trim().toLowerCase();
+        return title.includes('fuel') || title.includes('gas');
+      });
+
+      let takeoffWeight = totalWeight;
+      let takeoffMoment = totalMoment;
+      if (fuelRow && taxiBurnLb > 0) {
+        const burn = Math.min(taxiBurnLb, fuelRow.weight);
+        takeoffWeight -= burn;
+        takeoffMoment -= burn * fuelRow.arm;
+      }
+
+      const takeoffCg = takeoffWeight ? takeoffMoment / takeoffWeight : 0;
+
+      let landingWeight = takeoffWeight;
+      let landingMoment = takeoffMoment;
+      if (fuelRow && totalBurnLb > 0) {
+        const burn = Math.min(totalBurnLb, fuelRow.weight);
+        landingWeight = totalWeight - burn;
+        landingMoment = totalMoment - burn * fuelRow.arm;
+      } else if (totalBurnLb > 0) {
+        landingWeight = totalWeight - totalBurnLb;
+        landingMoment = totalMoment - totalBurnLb * (baseCg || 0);
+      }
+
+      const landingCg = landingWeight ? landingMoment / landingWeight : 0;
+
+      takeoffWeightEl.textContent = takeoffWeight.toFixed(2);
+      takeoffCgEl.textContent = takeoffCg.toFixed(2);
+      takeoffMomentEl.textContent = formatNumber(takeoffMoment, 2);
+
+      landingWeightEl.textContent = landingWeight.toFixed(2);
+      landingCgEl.textContent = landingCg.toFixed(2);
+      landingMomentEl.textContent = formatNumber(landingMoment, 2);
+
+      drawGraph();
+      autoSaveIfPossible();
+    }
+
+    addRowBtn.addEventListener('click', () => {
+      stationBody.appendChild(createRow({ title: 'Custom', weight: 0, arm: 0 }));
+    });
+
+    resetRowsBtn.addEventListener('click', () => {
+      const rows = stationBody.querySelectorAll('tr');
+      if (!rows.length) {
+        setStations(DEFAULT_ROWS);
+        recalc();
+        return;
+      }
+      rows.forEach(tr => {
+        const inputs = tr.querySelectorAll('input');
+        const title = (inputs[0].value || '').trim().toLowerCase();
+        if (title === 'empty weight') return;
+        inputs[1].value = 0;
+      });
+      recalc();
+    });
+
+    [taxiFuelInput, tripFuelInput].forEach(input => {
+      input.addEventListener('input', recalc);
+    });
+
+    saveAircraftBtn.addEventListener('click', saveAircraft);
+    duplicateAircraftBtn.addEventListener('click', duplicateAircraft);
+    deleteAircraftBtn.addEventListener('click', deleteSelectedAircraft);
+
+    aircraftName.addEventListener('input', () => {
+      updateAircraftActions();
+    });
+
+    aircraftName.addEventListener('change', () => {
+      const name = aircraftName.value.trim();
+      const { idx } = findAircraftByName(name);
+      if (idx >= 0) loadSelectedAircraft();
+    });
+
+    exportDataBtn.addEventListener('click', () => {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        aircraft: JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'),
+        graph: JSON.parse(localStorage.getItem(GRAPH_KEY) || '{}')
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'weight-balance-backup.json';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    importDataBtn.addEventListener('click', () => {
+      importFileInput.value = '';
+      importFileInput.click();
+    });
+
+    importFileInput.addEventListener('change', async (evt) => {
+      const file = evt.target.files && evt.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (data && Array.isArray(data.aircraft)) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data.aircraft));
+        }
+        if (data && typeof data.graph === 'object') {
+          localStorage.setItem(GRAPH_KEY, JSON.stringify(data.graph));
+        }
+        loadAircraftList();
+        loadGraphSettings();
+      } catch (err) {
+        console.error('Import failed', err);
+      }
+    });
+
+    function loadGraphSettings() {
+      const settings = JSON.parse(localStorage.getItem(GRAPH_KEY) || '{}');
+      cgMin.value = settings.cgMin ?? 30;
+      cgMax.value = settings.cgMax ?? 50;
+      wtMin.value = settings.wtMin ?? 1500;
+      wtMax.value = settings.wtMax ?? 2500;
+      showPointEditor = settings.showPointEditor ?? false;
+      showGraphEditor = settings.showGraphEditor ?? false;
+      points = settings.points || [
+        { x: 35, y: 1500 },
+        { x: 40, y: 1500 },
+        { x: 46, y: 2200 },
+        { x: 33, y: 2200 }
+      ];
+      plotEditor.classList.toggle('show', showPointEditor);
+      plotControls.classList.toggle('show', showPointEditor);
+      toggleEditBtn.textContent = showPointEditor ? 'Save Points' : 'Edit Points';
+      graphEditor.classList.toggle('show', showGraphEditor);
+      toggleGraphEditBtn.textContent = showGraphEditor ? 'Save Graph' : 'Edit Graph';
+      renderPlotList();
+      drawGraph();
+    }
+
+    function saveGraphSettings() {
+      localStorage.setItem(GRAPH_KEY, JSON.stringify({
+        cgMin: parseFloat(cgMin.value) || 0,
+        cgMax: parseFloat(cgMax.value) || 0,
+        wtMin: parseFloat(wtMin.value) || 0,
+        wtMax: parseFloat(wtMax.value) || 0,
+        showPointEditor,
+        showGraphEditor,
+        points
+      }));
+    }
+
+    [cgMin, cgMax, wtMin, wtMax].forEach(input => {
+      input.addEventListener('input', () => {
+        saveGraphSettings();
+        drawGraph();
+      });
+    });
+
+    let points = [];
+    let draggingIndex = null;
+    let showPointEditor = false;
+    let showGraphEditor = false;
+
+    function worldToCanvas(x, y) {
+      const minX = parseFloat(cgMin.value) || 0;
+      const maxX = parseFloat(cgMax.value) || 1;
+      const minY = parseFloat(wtMin.value) || 0;
+      const maxY = parseFloat(wtMax.value) || 1;
+      const pad = 40;
+      const width = canvas.width - pad * 2;
+      const height = canvas.height - pad * 2;
+      const nx = (x - minX) / (maxX - minX || 1);
+      const ny = (y - minY) / (maxY - minY || 1);
+      return {
+        cx: pad + nx * width,
+        cy: canvas.height - pad - ny * height
+      };
+    }
+
+    function canvasToWorld(cx, cy) {
+      const minX = parseFloat(cgMin.value) || 0;
+      const maxX = parseFloat(cgMax.value) || 1;
+      const minY = parseFloat(wtMin.value) || 0;
+      const maxY = parseFloat(wtMax.value) || 1;
+      const pad = 40;
+      const width = canvas.width - pad * 2;
+      const height = canvas.height - pad * 2;
+      const nx = (cx - pad) / (width || 1);
+      const ny = (canvas.height - pad - cy) / (height || 1);
+      return {
+        x: minX + nx * (maxX - minX || 1),
+        y: minY + ny * (maxY - minY || 1)
+      };
+    }
+
+    function snapPoint(world) {
+      return {
+        x: Math.round(world.x * 10) / 10,
+        y: Math.round(world.y / 10) * 10
+      };
+    }
+
+    function distancePointToSegment(p, a, b) {
+      const abx = b.x - a.x;
+      const aby = b.y - a.y;
+      const apx = p.x - a.x;
+      const apy = p.y - a.y;
+      const abLen2 = abx * abx + aby * aby || 1;
+      let t = (apx * abx + apy * aby) / abLen2;
+      t = Math.max(0, Math.min(1, t));
+      const proj = { x: a.x + abx * t, y: a.y + aby * t };
+      const dx = p.x - proj.x;
+      const dy = p.y - proj.y;
+      return { dist: Math.hypot(dx, dy), proj };
+    }
+
+    function insertPointBetweenClosestSegment(canvasPos) {
+      if (!showPointEditor || points.length < 2) return;
+      const minX = parseFloat(cgMin.value) || 0;
+      const maxX = parseFloat(cgMax.value) || 1;
+      const minY = parseFloat(wtMin.value) || 0;
+      const maxY = parseFloat(wtMax.value) || 1;
+      const world = canvasToWorld(canvasPos.x, canvasPos.y);
+      const clamped = {
+        x: Math.min(maxX, Math.max(minX, world.x)),
+        y: Math.min(maxY, Math.max(minY, world.y))
+      };
+
+      let best = { dist: Infinity, index: 0, point: clamped };
+      const segmentCount = points.length;
+      for (let i = 0; i < segmentCount; i++) {
+        const a = points[i];
+        const b = points[(i + 1) % segmentCount];
+        const aCanvas = worldToCanvas(a.x, a.y);
+        const bCanvas = worldToCanvas(b.x, b.y);
+        const pCanvas = canvasPos;
+        const result = distancePointToSegment(pCanvas, aCanvas, bCanvas);
+        if (result.dist < best.dist) {
+          const projWorld = canvasToWorld(result.proj.x, result.proj.y);
+          best = { dist: result.dist, index: i, point: projWorld };
+        }
+      }
+
+      const snapped = snapPoint(best.point);
+      if (best.index === points.length - 1) {
+        points.push(snapped);
+      } else {
+        points.splice(best.index + 1, 0, snapped);
+      }
+      renderPlotList();
+      saveGraphSettings();
+      drawGraph();
+    }
+
+    function drawGrid() {
+      const pad = 40;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#fdfdfd';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = '#d0d0d0';
+      ctx.lineWidth = 1;
+
+      const minX = parseFloat(cgMin.value) || 0;
+      const maxX = parseFloat(cgMax.value) || 1;
+      const minY = parseFloat(wtMin.value) || 0;
+      const maxY = parseFloat(wtMax.value) || 1;
+
+      ctx.fillStyle = '#5b5b5b';
+      ctx.font = '11px Merriweather, serif';
+
+      const xStart = Math.ceil(minX);
+      const xEnd = Math.floor(maxX);
+      for (let x = xStart; x <= xEnd; x += 1) {
+        const { cx } = worldToCanvas(x, minY);
+        ctx.beginPath();
+        ctx.moveTo(cx, pad);
+        ctx.lineTo(cx, canvas.height - pad);
+        ctx.stroke();
+        ctx.fillText(`${x}`, cx - 6, canvas.height - pad + 14);
+      }
+
+      const yStart = Math.ceil(minY / 100) * 100;
+      const yEnd = Math.floor(maxY / 100) * 100;
+      for (let y = yStart; y <= yEnd; y += 100) {
+        const { cy } = worldToCanvas(minX, y);
+        ctx.beginPath();
+        ctx.moveTo(pad, cy);
+        ctx.lineTo(canvas.width - pad, cy);
+        ctx.stroke();
+        ctx.fillText(`${y}`, 6, cy + 3);
+      }
+
+      ctx.strokeStyle = '#9b9b9b';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(pad, pad, canvas.width - pad * 2, canvas.height - pad * 2);
+
+      ctx.fillText('CG', canvas.width - pad + 8, canvas.height - pad + 4);
+      ctx.fillText('Weight', 6, pad - 8);
+    }
+
+    function drawEnvelope() {
+      if (!points.length) return;
+      ctx.strokeStyle = '#4a4a4a';
+      ctx.fillStyle = 'rgba(90,90,90,0.12)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      points.forEach((pt, i) => {
+        const { cx, cy } = worldToCanvas(pt.x, pt.y);
+        if (i === 0) ctx.moveTo(cx, cy);
+        else ctx.lineTo(cx, cy);
+      });
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      if (!showPointEditor) return;
+
+      points.forEach((pt, i) => {
+        const { cx, cy } = worldToCanvas(pt.x, pt.y);
+        ctx.fillStyle = '#7a7a7a';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#1f1f1f';
+        ctx.fillText(`${i + 1}`, cx + 8, cy - 8);
+      });
+    }
+
+    function drawPointsOfInterest() {
+      const takeoffWeight = parseFloat(takeoffWeightEl.textContent) || 0;
+      const takeoffCg = parseFloat(takeoffCgEl.textContent) || 0;
+      const landingWeight = parseFloat(landingWeightEl.textContent) || 0;
+      const landingCg = parseFloat(landingCgEl.textContent) || 0;
+
+      const minX = parseFloat(cgMin.value) || 0;
+      const maxX = parseFloat(cgMax.value) || 1;
+      const minY = parseFloat(wtMin.value) || 0;
+      const maxY = parseFloat(wtMax.value) || 1;
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      const takeoffDisplay = worldToCanvas(
+        clamp(takeoffCg, minX, maxX),
+        clamp(takeoffWeight, minY, maxY)
+      );
+      const landingDisplay = worldToCanvas(
+        clamp(landingCg, minX, maxX),
+        clamp(landingWeight, minY, maxY)
+      );
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.fillStyle = '#202020';
+      ctx.beginPath();
+      ctx.arc(takeoffDisplay.cx, takeoffDisplay.cy, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillText('T/O', takeoffDisplay.cx + 10, takeoffDisplay.cy + 4);
+
+      const dx = landingDisplay.cx - takeoffDisplay.cx;
+      const dy = landingDisplay.cy - takeoffDisplay.cy;
+      const distance = Math.hypot(dx, dy);
+      if (distance >= 16) {
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.fillStyle = '#5c5c5c';
+        ctx.beginPath();
+        ctx.arc(landingDisplay.cx, landingDisplay.cy, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillText('LDG', landingDisplay.cx + 10, landingDisplay.cy + 4);
+      }
+    }
+
+    function pointInPolygon(point, polygon) {
+      if (polygon.length < 3) return false;
+      let inside = false;
+      for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+        const xi = polygon[i].x;
+        const yi = polygon[i].y;
+        const xj = polygon[j].x;
+        const yj = polygon[j].y;
+        const intersect = ((yi > point.y) !== (yj > point.y)) &&
+          (point.x < (xj - xi) * (point.y - yi) / (yj - yi || 1) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    function drawGraph() {
+      drawGrid();
+      drawEnvelope();
+      drawPointsOfInterest();
+
+      const takeoff = {
+        x: parseFloat(takeoffCgEl.textContent) || 0,
+        y: parseFloat(takeoffWeightEl.textContent) || 0
+      };
+      const landing = {
+        x: parseFloat(landingCgEl.textContent) || 0,
+        y: parseFloat(landingWeightEl.textContent) || 0
+      };
+      const outside = points.length >= 3 &&
+        (!pointInPolygon(takeoff, points) || !pointInPolygon(landing, points));
+      warningMessage.style.display = outside ? 'block' : 'none';
+    }
+
+    function resizeCanvas() {
+      const maxWidth = 900;
+      const available = graphWrap ? graphWrap.clientWidth : maxWidth;
+      const width = Math.max(420, Math.min(maxWidth, available));
+      canvas.style.width = `${width}px`;
+      if (canvas.width !== width) {
+        canvas.width = width;
+      }
+      drawGraph();
+    }
+
+    function renderPlotList() {
+      plotEditor.innerHTML = '';
+      points.forEach((pt, idx) => {
+        const row = document.createElement('div');
+        row.className = 'plot-item';
+        const indexBadge = document.createElement('div');
+        indexBadge.className = 'plot-index';
+        indexBadge.textContent = `${idx + 1}`;
+        const xInput = document.createElement('input');
+        xInput.type = 'number';
+        xInput.step = '0.1';
+        xInput.value = pt.x;
+        const arrows = document.createElement('div');
+        arrows.className = 'arrow-stack';
+        const upBtn = document.createElement('button');
+        upBtn.textContent = '▲';
+        const downBtn = document.createElement('button');
+        downBtn.textContent = '▼';
+        arrows.appendChild(upBtn);
+        arrows.appendChild(downBtn);
+        const yInput = document.createElement('input');
+        yInput.type = 'number';
+        yInput.step = '0.1';
+        yInput.value = pt.y;
+        const removeBtn = document.createElement('button');
+        removeBtn.setAttribute('aria-label', 'Remove point');
+        removeBtn.innerHTML = '&#128465;';
+
+        function update() {
+          pt.x = parseFloat(xInput.value) || 0;
+          pt.y = parseFloat(yInput.value) || 0;
+          saveGraphSettings();
+          drawGraph();
+        }
+
+        xInput.addEventListener('input', update);
+        yInput.addEventListener('input', update);
+
+        removeBtn.addEventListener('click', () => {
+          points.splice(idx, 1);
+          renderPlotList();
+          saveGraphSettings();
+          drawGraph();
+        });
+
+        upBtn.addEventListener('click', () => {
+          if (idx === 0) return;
+          [points[idx - 1], points[idx]] = [points[idx], points[idx - 1]];
+          renderPlotList();
+          saveGraphSettings();
+          drawGraph();
+        });
+
+        downBtn.addEventListener('click', () => {
+          if (idx === points.length - 1) return;
+          [points[idx + 1], points[idx]] = [points[idx], points[idx + 1]];
+          renderPlotList();
+          saveGraphSettings();
+          drawGraph();
+        });
+
+        row.appendChild(indexBadge);
+        row.appendChild(xInput);
+        row.appendChild(arrows);
+        row.appendChild(yInput);
+        row.appendChild(removeBtn);
+
+        plotEditor.appendChild(row);
+      });
+    }
+
+    addPointBtn.addEventListener('click', () => {
+      points.push({ x: parseFloat(cgMin.value) || 0, y: parseFloat(wtMin.value) || 0 });
+      renderPlotList();
+      saveGraphSettings();
+      drawGraph();
+    });
+
+    toggleEditBtn.addEventListener('click', () => {
+      showPointEditor = !showPointEditor;
+      plotEditor.classList.toggle('show', showPointEditor);
+      plotControls.classList.toggle('show', showPointEditor);
+      toggleEditBtn.textContent = showPointEditor ? 'Save Points' : 'Edit Points';
+      saveGraphSettings();
+      drawGraph();
+    });
+
+    toggleGraphEditBtn.addEventListener('click', () => {
+      showGraphEditor = !showGraphEditor;
+      graphEditor.classList.toggle('show', showGraphEditor);
+      toggleGraphEditBtn.textContent = showGraphEditor ? 'Save Graph' : 'Edit Graph';
+      saveGraphSettings();
+      drawGraph();
+    });
+
+    function getMousePos(evt) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: (evt.clientX - rect.left) * (canvas.width / rect.width),
+        y: (evt.clientY - rect.top) * (canvas.height / rect.height)
+      };
+    }
+
+    canvas.addEventListener('mousedown', (evt) => {
+      if (!showPointEditor) return;
+      const pos = getMousePos(evt);
+      const hitRadius = 8;
+      draggingIndex = null;
+      points.forEach((pt, idx) => {
+        const { cx, cy } = worldToCanvas(pt.x, pt.y);
+        const dx = pos.x - cx;
+        const dy = pos.y - cy;
+        if (Math.hypot(dx, dy) <= hitRadius) {
+          draggingIndex = idx;
+        }
+      });
+    });
+
+    canvas.addEventListener('mousemove', (evt) => {
+      if (draggingIndex === null) return;
+      const pos = getMousePos(evt);
+      const world = canvasToWorld(pos.x, pos.y);
+      const snapped = snapPoint(world);
+      points[draggingIndex].x = snapped.x;
+      points[draggingIndex].y = snapped.y;
+      renderPlotList();
+      saveGraphSettings();
+      drawGraph();
+    });
+
+    canvas.addEventListener('dblclick', (evt) => {
+      const pos = getMousePos(evt);
+      insertPointBetweenClosestSegment(pos);
+    });
+
+    let lastTapTime = 0;
+    canvas.addEventListener('touchstart', (evt) => {
+      if (evt.touches.length !== 1) return;
+      const now = Date.now();
+      const rect = canvas.getBoundingClientRect();
+      const touch = evt.touches[0];
+      const pos = {
+        x: (touch.clientX - rect.left) * (canvas.width / rect.width),
+        y: (touch.clientY - rect.top) * (canvas.height / rect.height)
+      };
+      if (now - lastTapTime < 300) {
+        insertPointBetweenClosestSegment(pos);
+      }
+      lastTapTime = now;
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      draggingIndex = null;
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      draggingIndex = null;
+    });
+
+    function init() {
+      setStations(DEFAULT_ROWS);
+      loadAircraftList();
+      loadGraphSettings();
+      recalc();
+      resizeCanvas();
+    }
+
+    init();
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+</body>
+</html>
